@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication(scanBasePackages = {
     "com.echo.api",
     "com.echo.post.application",
+    "com.echo.timeline.application",
     "com.echo.user"
 })
 @EntityScan(basePackages = {

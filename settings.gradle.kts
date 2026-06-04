@@ -15,4 +15,5 @@ rootProject.name = "echo"
 include("common")
 include("modules:user")
 include("modules:post")
+include("modules:timeline")
 include("apps:customer-api")

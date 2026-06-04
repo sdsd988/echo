@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(rm -fr:*)",
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(psql:*)",
+      "Bash(docker:*)"
+    ],
+    "allow": [
+      "Bash(./gradlew build:*)",
+      "Bash(./gradlew test:*)",
+      "Bash(./gradlew bootRun:*)",
+      "Bash(./gradlew :apps:customer-api:bootRun:*)",
+      "Bash(./gradlew :apps:customer-api:test:*)"
+    ]
+  }
+}

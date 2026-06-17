@@ -6,7 +6,16 @@
       "Read(.env)",
       "Read(.env.*)",
       "Read(**/.env)",
-      "Read(**/.env.*)"
+      "Read(**/.env.*)",
+      "Read(/prompts/**)",
+      "Bash(cat prompts/*)",
+      "Bash(cat /prompts/*)",
+      "Bash(head prompts/*)",
+      "Bash(head /prompts/*)",
+      "Bash(tail prompts/*)",
+      "Bash(tail /prompts/*)",
+      "Bash(sed * prompts/*)",
+      "Bash(sed * /prompts/*)"
     ],
     "ask": [
       "Bash(git push:*)",

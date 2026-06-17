@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":modules:user"))
     implementation(project(":modules:post"))
     implementation(project(":modules:timeline"))
+    implementation(project(":modules:follow"))
 
     // Spring Boot Web + JPA + Validation + Actuator
     implementation("org.springframework.boot:spring-boot-starter-web")

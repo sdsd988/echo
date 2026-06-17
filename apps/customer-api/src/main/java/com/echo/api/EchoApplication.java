@@ -13,14 +13,18 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     "com.echo.api",
     "com.echo.post.application",
     "com.echo.timeline.application",
+    "com.echo.follow.application",
     "com.echo.user"
 })
 @EntityScan(basePackages = {
     "com.echo.user.domain",
-    "com.echo.post.domain"
+    "com.echo.post.domain",
+    "com.echo.follow.domain"
 })
 @EnableJpaRepositories(basePackages = {
-    "com.echo.post.infrastructure"
+    "com.echo.post.infrastructure",
+    "com.echo.user.infrastructure",
+    "com.echo.follow.infrastructure"
 })
 public class EchoApplication {
 

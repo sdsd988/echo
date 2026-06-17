@@ -31,6 +31,19 @@
     ]
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/block-follow-cross-import.sh\"",
+            "timeout": 10,
+            "statusMessage": "follow 모듈 의존성 검사 중…"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write|MultiEdit",
@@ -40,6 +53,18 @@
             "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/run-module-tests.sh\"",
             "timeout": 300,
             "statusMessage": "모듈 테스트 실행 중…"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/session-summary.sh\"",
+            "timeout": 15,
+            "statusMessage": "세션 요약 기록 중…"
           }
         ]
       }

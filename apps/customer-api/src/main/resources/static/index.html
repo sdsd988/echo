@@ -78,6 +78,37 @@
       transition: opacity 0.15s;
     }
     button:disabled { opacity: 0.4; cursor: not-allowed; }
+    button.ghost {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--border);
+    }
+
+    .section-title { font-size: 16px; margin: 0 0 12px; color: var(--muted); font-weight: 600; }
+    .follow-row { display: flex; gap: 12px; margin-bottom: 4px; }
+    .follow-row label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .follow-row input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      padding: 8px 10px;
+      outline: none;
+    }
+    .follow-row input:focus { border-color: var(--accent); }
+    .actions { display: flex; gap: 8px; }
+    .follow-status { font-size: 13px; color: var(--muted); }
+    .follow-status.ok { color: var(--accent); }
+    .follow-status.err { color: var(--danger); }
 
     .feed-head {
       display: flex;
@@ -132,6 +163,25 @@
       </div>
     </section>
 
+    <section class="composer">
+      <h2 class="section-title">팔로우</h2>
+      <div class="follow-row">
+        <label>내 ID
+          <input id="meId" type="number" min="1" value="1" />
+        </label>
+        <label>대상 ID
+          <input id="targetId" type="number" min="1" value="2" />
+        </label>
+      </div>
+      <div class="composer-bar">
+        <span id="followStatus" class="follow-status">데모 유저: 1=alice · 2=bob · 3=carol</span>
+        <div class="actions">
+          <button id="unfollowBtn" class="ghost">언팔로우</button>
+          <button id="followBtn">팔로우</button>
+        </div>
+      </div>
+    </section>
+
     <div class="feed-head">
       <h2>타임라인</h2>
       <button id="refresh" class="refresh">새로고침</button>
@@ -162,7 +212,9 @@
       try { body = await res.json(); } catch (_) { /* 본문 없음 */ }
       if (!res.ok || (body && body.success === false)) {
         const msg = (body && body.message) || `요청 실패 (${res.status})`;
-        throw new Error(msg);
+        const err = new Error(msg);
+        err.status = res.status;
+        throw err;
       }
       return body ? body.data : null;
     }
@@ -232,6 +284,55 @@
         $submit.disabled = false;
       }
     }
+
+    // ── 팔로우 / 언팔로우 ──────────────────────────────────────────
+    const $meId = document.getElementById("meId");
+    const $targetId = document.getElementById("targetId");
+    const $followBtn = document.getElementById("followBtn");
+    const $unfollowBtn = document.getElementById("unfollowBtn");
+    const $followStatus = document.getElementById("followStatus");
+
+    function setFollowStatus(msg, kind) {
+      $followStatus.textContent = msg;
+      $followStatus.classList.toggle("ok", kind === "ok");
+      $followStatus.classList.toggle("err", kind === "err");
+    }
+
+    // POST/DELETE /follows/{대상} — 주체는 X-User-Id 헤더로 식별
+    async function callFollow(method) {
+      const me = $meId.value.trim();
+      const target = $targetId.value.trim();
+      if (!me || !target) {
+        setFollowStatus("내 ID와 대상 ID를 모두 입력하세요.", "err");
+        return;
+      }
+      $followBtn.disabled = true;
+      $unfollowBtn.disabled = true;
+      setFollowStatus("요청 중…", "");
+      try {
+        const res = await fetch(`/follows/${encodeURIComponent(target)}`, {
+          method,
+          headers: { "X-User-Id": me }
+        });
+        await unwrap(res);
+        const verb = method === "POST" ? "팔로우" : "언팔로우";
+        setFollowStatus(`@user${escapeHtml(me)} → @user${escapeHtml(target)} ${verb}했어요.`, "ok");
+      } catch (e) {
+        // 상태코드별 친절한 메시지(서버 기본 에러 본문엔 message가 없을 수 있음)
+        const friendly = {
+          400: "자기 자신은 팔로우할 수 없어요.",
+          404: "존재하지 않는 유저예요.",
+          409: "이미 팔로우 중이에요."
+        }[e.status];
+        setFollowStatus(friendly || e.message, "err");
+      } finally {
+        $followBtn.disabled = false;
+        $unfollowBtn.disabled = false;
+      }
+    }
+
+    $followBtn.addEventListener("click", () => callFollow("POST"));
+    $unfollowBtn.addEventListener("click", () => callFollow("DELETE"));
 
     $content.addEventListener("input", updateCounter);
     // Cmd/Ctrl + Enter 로 빠른 게시

@@ -1,0 +1,12 @@
+package com.echo.{{module}}.infrastructure;
+
+import com.echo.{{module}}.domain.{{Domain}};
+import org.springframework.data.jpa.repository.JpaRepository;
+
+/**
+ * {{Domain}} JPA 리포지토리. infrastructure 계층.
+ *
+ * <p>TODO: 유스케이스에 필요한 파생 쿼리 메서드를 추가한다(각 메서드에 한 줄 주석으로 의미 명시).
+ */
+public interface {{Domain}}Repository extends JpaRepository<{{Domain}}, Long> {
+}

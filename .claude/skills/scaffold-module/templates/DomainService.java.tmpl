@@ -1,0 +1,29 @@
+package com.echo.{{module}}.application;
+
+import com.echo.{{module}}.domain.{{Domain}};
+import com.echo.{{module}}.infrastructure.{{Domain}}Repository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * {{Domain}} 애플리케이션 서비스(쓰기 측). 읽기는 {@link {{Domain}}QueryService}가 담당한다.
+ *
+ * <p>다른 모듈이 필요한 검증(예: 대상 유저 존재 404)은 이 서비스의 책임이 아니다 —
+ * 모듈 간 직접 의존을 피하기 위해 조립 지점(컨트롤러)에서 검증한 뒤 호출한다.
+ */
+@Service
+@Transactional(readOnly = true)
+public class {{Domain}}Service {
+
+    private final {{Domain}}Repository {{module}}Repository;
+
+    public {{Domain}}Service({{Domain}}Repository {{module}}Repository) {
+        this.{{module}}Repository = {{module}}Repository;
+    }
+
+    /** TODO: 실제 유스케이스로 교체. 골격용 생성 예시. */
+    @Transactional
+    public {{Domain}} create(String value) {
+        return {{module}}Repository.save(new {{Domain}}(value));
+    }
+}

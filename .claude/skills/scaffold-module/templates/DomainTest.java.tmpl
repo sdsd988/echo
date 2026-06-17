@@ -1,0 +1,30 @@
+package com.echo.{{module}}.domain;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+/**
+ * {{Domain}} 도메인 불변식 테스트(생성자 검증).
+ *
+ * <p>TODO: 실제 도메인 규칙에 맞춰 케이스를 채운다.
+ */
+class {{Domain}}Test {
+
+    @Test
+    @DisplayName("정상 값으로 생성된다")
+    void create_ok() {
+        {{Domain}} {{module}} = new {{Domain}}("v");
+        assertEquals("v", {{module}}.getValue());
+        assertNotNull({{module}}.getCreatedAt());
+    }
+
+    @Test
+    @DisplayName("빈 값이면 예외")
+    void create_blank_throws() {
+        assertThrows(IllegalArgumentException.class, () -> new {{Domain}}(" "));
+    }
+}

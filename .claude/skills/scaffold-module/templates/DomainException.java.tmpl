@@ -1,0 +1,15 @@
+package com.echo.{{module}}.domain;
+
+/**
+ * {{Domain}} 도메인 규칙 위반 시 발생하는 예외.
+ *
+ * <p>HTTP 상태 변환(예: 409)은 컨트롤러(조립 지점)의 몫이다 — domain은 Spring Web에 의존하지 않는다.
+ *
+ * <p>TODO: 생성자 인자/메시지를 실제 위반 상황에 맞게 다듬는다. 불필요하면 이 파일을 삭제해도 된다.
+ */
+public class {{Domain}}Exception extends RuntimeException {
+
+    public {{Domain}}Exception(String message) {
+        super(message);
+    }
+}

@@ -1,0 +1,49 @@
+package com.echo.api.{{module}};
+
+import com.echo.common.ApiResponse;
+import com.echo.{{module}}.application.{{Domain}}QueryService;
+import com.echo.{{module}}.application.{{Domain}}Service;
+import com.echo.{{module}}.domain.{{Domain}};
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * {{Domain}} HTTP API 컨트롤러. 모듈을 잇는 조립 지점(composition root)이다.
+ *
+ * <p>여기서만 Spring Web에 의존한다. 도메인 예외 → HTTP 상태 변환,
+ * 그리고 다른 모듈이 필요한 검증(예: 대상 존재 404)을 이 계층에서 처리한다.
+ * 모듈끼리는 서로 직접 의존하지 않는다.
+ *
+ * <p>모든 응답은 {@link ApiResponse}로 감싼다.
+ */
+@RestController
+@RequestMapping("/{{module}}s")
+@Tag(name = "{{Domain}}", description = "{{Domain}} API")
+public class {{Domain}}Controller {
+
+    private final {{Domain}}Service {{module}}Service;
+    private final {{Domain}}QueryService {{module}}QueryService;
+
+    public {{Domain}}Controller({{Domain}}Service {{module}}Service,
+                                {{Domain}}QueryService {{module}}QueryService) {
+        this.{{module}}Service = {{module}}Service;
+        this.{{module}}QueryService = {{module}}QueryService;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "{{Domain}} 생성")
+    public ApiResponse<{{Domain}}Response> create(@RequestParam String value) {
+        // TODO: 실제 요청 DTO/유스케이스로 교체. 다른 모듈 검증이 필요하면 여기서 호출한다.
+        {{Domain}} {{module}} = {{module}}Service.create(value);
+        return ApiResponse.ok({{Domain}}Response.from({{module}}), "생성했습니다.");
+    }
+
+    @GetMapping("/count")
+    @Operation(summary = "{{Domain}} 개수 조회")
+    public ApiResponse<Long> count() {
+        return ApiResponse.ok({{module}}QueryService.count());
+    }
+}

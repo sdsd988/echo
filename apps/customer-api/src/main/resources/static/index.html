@@ -139,6 +139,28 @@
     .time { color: var(--muted); font-size: 12px; }
     .post-content { white-space: pre-wrap; word-break: break-word; }
 
+    .post-actions { margin-top: 8px; }
+    .like-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .like-btn:hover:not(:disabled) { border-color: var(--danger); color: var(--danger); }
+    .like-btn.liked {
+      background: rgba(255, 107, 107, 0.12);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+    .like-count { font-variant-numeric: tabular-nums; }
+
     .empty, .error {
       text-align: center;
       color: var(--muted);
@@ -244,15 +266,26 @@
       const sorted = [...items].sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
-      $feed.innerHTML = sorted.map(p => `
+      $feed.innerHTML = sorted.map(p => {
+        const liked = likedSet.has(likeKey(p.postId));
+        return `
         <article class="post">
           <div class="post-meta">
             <span class="author">@user${escapeHtml(String(p.authorId))}</span>
             <span class="time">${escapeHtml(formatTime(p.createdAt))}</span>
           </div>
           <div class="post-content">${escapeHtml(p.content)}</div>
-        </article>
-      `).join("");
+          <div class="post-actions">
+            <button class="like-btn${liked ? " liked" : ""}" data-post-id="${escapeHtml(String(p.postId))}">
+              <span>♥</span>
+              <span class="like-count">…</span>
+            </button>
+          </div>
+        </article>`;
+      }).join("");
+
+      // 각 글의 좋아요 수를 서버에서 새로 채워 넣는다
+      sorted.forEach(p => refreshLikeCount(p.postId));
     }
 
     async function loadTimeline() {
@@ -333,6 +366,63 @@
 
     $followBtn.addEventListener("click", () => callFollow("POST"));
     $unfollowBtn.addEventListener("click", () => callFollow("DELETE"));
+
+    // ── 좋아요 / 좋아요 취소 ───────────────────────────────────────
+    // 좋아요 주체는 위 "내 ID"(meId)를 X-User-Id로 재사용한다.
+    // "내가 눌렀는지" 조회 API는 없으므로, 누른 상태는 클라이언트가 (me:postId) 키로 기억하고
+    // 좋아요 수는 매번 서버에서 새로 받아 정확성을 보장한다.
+    const likedSet = new Set();
+    const currentMe = () => $meId.value.trim() || "1";
+    const likeKey = (postId) => `${currentMe()}:${postId}`;
+
+    // GET /posts/{postId}/likes/count — 해당 버튼의 수 표시를 갱신
+    async function refreshLikeCount(postId) {
+      const $btn = $feed.querySelector(`.like-btn[data-post-id="${postId}"]`);
+      if (!$btn) return;
+      const $count = $btn.querySelector(".like-count");
+      try {
+        const res = await fetch(`/posts/${encodeURIComponent(postId)}/likes/count`);
+        const data = await unwrap(res);
+        $count.textContent = data ? data.count : 0;
+      } catch (_) {
+        $count.textContent = "-";
+      }
+    }
+
+    // POST/DELETE /posts/{postId}/likes — 누른 상태를 토글
+    async function toggleLike(postId) {
+      const $btn = $feed.querySelector(`.like-btn[data-post-id="${postId}"]`);
+      if (!$btn) return;
+      const wasLiked = likedSet.has(likeKey(postId));
+      $btn.disabled = true;
+      try {
+        const res = await fetch(`/posts/${encodeURIComponent(postId)}/likes`, {
+          method: wasLiked ? "DELETE" : "POST",
+          headers: { "X-User-Id": currentMe() }
+        });
+        try {
+          await unwrap(res);
+        } catch (e) {
+          // 이미 좋아요한 상태(409)면 누른 상태로 동기화하고 넘어간다
+          if (e.status !== 409) throw e;
+        }
+        if (wasLiked) likedSet.delete(likeKey(postId));
+        else likedSet.add(likeKey(postId));
+        $btn.classList.toggle("liked", likedSet.has(likeKey(postId)));
+        await refreshLikeCount(postId);
+      } catch (e) {
+        const friendly = { 404: "삭제됐거나 없는 게시물이에요." }[e.status];
+        alert("좋아요 처리 실패: " + (friendly || e.message));
+      } finally {
+        $btn.disabled = false;
+      }
+    }
+
+    // 피드는 매번 새로 그려지므로 이벤트 위임으로 처리
+    $feed.addEventListener("click", (e) => {
+      const $btn = e.target.closest(".like-btn");
+      if ($btn) toggleLike($btn.dataset.postId);
+    });
 
     $content.addEventListener("input", updateCounter);
     // Cmd/Ctrl + Enter 로 빠른 게시

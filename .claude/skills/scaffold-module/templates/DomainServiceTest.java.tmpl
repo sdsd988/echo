@@ -1,0 +1,40 @@
+package com.echo.{{module}}.application;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+import com.echo.{{module}}.domain.{{Domain}};
+import com.echo.{{module}}.infrastructure.{{Domain}}Repository;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+/**
+ * {{Domain}}Service 유스케이스 테스트. 리포지토리는 mock으로 대체한다.
+ *
+ * <p>TODO: 실제 유스케이스에 맞춰 케이스를 채운다.
+ */
+@ExtendWith(MockitoExtension.class)
+class {{Domain}}ServiceTest {
+
+    @Mock
+    {{Domain}}Repository {{module}}Repository;
+
+    @InjectMocks
+    {{Domain}}Service {{module}}Service;
+
+    @Test
+    @DisplayName("create는 저장 결과를 반환한다")
+    void create_saves() {
+        {{Domain}} saved = new {{Domain}}("v");
+        when({{module}}Repository.save(any())).thenReturn(saved);
+
+        {{Domain}} result = {{module}}Service.create("v");
+
+        assertEquals("v", result.getValue());
+    }
+}

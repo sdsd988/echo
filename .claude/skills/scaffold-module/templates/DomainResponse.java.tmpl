@@ -1,0 +1,16 @@
+package com.echo.api.{{module}};
+
+import com.echo.{{module}}.domain.{{Domain}};
+import java.time.LocalDateTime;
+
+/**
+ * {{Domain}} 응답 DTO. DTO는 record로 정의한다.
+ *
+ * <p>TODO: 실제 노출 필드로 교체한다.
+ */
+public record {{Domain}}Response(Long id, String value, LocalDateTime createdAt) {
+
+    public static {{Domain}}Response from({{Domain}} {{module}}) {
+        return new {{Domain}}Response({{module}}.getId(), {{module}}.getValue(), {{module}}.getCreatedAt());
+    }
+}

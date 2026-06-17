@@ -2,27 +2,26 @@ spring:
   application:
     name: echo-customer-api
 
-  # H2 인메모리 DB (4~6장. 7장에서 PostgreSQL/Docker로 마이그레이션)
+  # PostgreSQL (docker-compose로 기동). 비밀번호는 환경변수로만 주입한다(평문 미커밋).
   datasource:
-    url: jdbc:h2:mem:echo;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:echo}
+    username: ${POSTGRES_USER:echo}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: create-drop
+      # 스키마는 Flyway가 만든다. Hibernate는 검증만 한다.
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
         format_sql: true
 
-  # H2 콘솔 — http://localhost:8080/h2-console
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+  # Flyway 마이그레이션 — classpath:db/migration/V*.sql
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
 
 server:
   port: 8080

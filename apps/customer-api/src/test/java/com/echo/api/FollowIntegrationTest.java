@@ -9,8 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,10 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
  * 데모 시더가 유저 1(alice)/2(bob)/3(carol)을 만든다.
  * 각 테스트는 @Transactional로 팔로우 데이터를 롤백해 서로 간섭하지 않는다(시드 유저는 기동 시 커밋되어 유지됨).
  */
-@SpringBootTest
-@AutoConfigureMockMvc
 @Transactional
-class FollowIntegrationTest {
+class FollowIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

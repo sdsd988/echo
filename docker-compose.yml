@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: echo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-echo}
+      POSTGRES_USER: ${POSTGRES_USER:-echo}
+      # 비밀번호는 .env에서 주입한다(기본값 없음). 누락 시 컨테이너가 명확한 에러로 멈춘다.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD가 필요합니다. .env를 만드세요 (cp .env.example .env)}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - echo-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-echo} -d ${POSTGRES_DB:-echo}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  echo-pgdata:

@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "echo-db": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://echo:echo@localhost:5432/echo"
+      ],
+      "env": {}
+    }
+  }
+}

@@ -27,5 +27,15 @@ subprojects {
 
     tasks.withType<Test> {
         useJUnitPlatform()
+
+        // Testcontainers가 Docker Desktop의 비표준 소켓을 찾도록 보정.
+        // DOCKER_HOST가 이미 있으면 그대로 두고, 없으면 홈의 Docker Desktop 소켓을 주입한다.
+        // (Linux CI의 표준 /var/run/docker.sock 환경에서는 소켓이 없으므로 건너뛴다.)
+        if (System.getenv("DOCKER_HOST") == null) {
+            val desktopSocket = file("${System.getProperty("user.home")}/.docker/run/docker.sock")
+            if (desktopSocket.exists()) {
+                environment("DOCKER_HOST", "unix://${desktopSocket.absolutePath}")
+            }
+        }
     }
 }

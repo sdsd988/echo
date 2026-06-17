@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
  * 게시물은 시드되지 않으므로 각 테스트가 글을 만들어 사용한다.
  * @Transactional로 좋아요/게시물 데이터를 롤백해 서로 간섭하지 않는다(시드 유저는 기동 시 커밋되어 유지됨).
  */
-@SpringBootTest
-@AutoConfigureMockMvc
 @Transactional
-class LikeIntegrationTest {
+class LikeIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

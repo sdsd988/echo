@@ -15,19 +15,22 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     "com.echo.timeline.application",
     "com.echo.follow.application",
     "com.echo.engagement.application",
+    "com.echo.moderation.application",
     "com.echo.user"
 })
 @EntityScan(basePackages = {
     "com.echo.user.domain",
     "com.echo.post.domain",
     "com.echo.follow.domain",
-    "com.echo.engagement.domain"
+    "com.echo.engagement.domain",
+    "com.echo.moderation.domain"
 })
 @EnableJpaRepositories(basePackages = {
     "com.echo.post.infrastructure",
     "com.echo.user.infrastructure",
     "com.echo.follow.infrastructure",
-    "com.echo.engagement.infrastructure"
+    "com.echo.engagement.infrastructure",
+    "com.echo.moderation.infrastructure"
 })
 public class EchoApplication {
 

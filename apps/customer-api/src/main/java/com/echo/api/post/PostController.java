@@ -1,6 +1,8 @@
 package com.echo.api.post;
 
 import com.echo.common.ApiResponse;
+import com.echo.moderation.application.BannedWordService;
+import com.echo.moderation.domain.BannedWordViolationException;
 import com.echo.post.application.PostService;
 import com.echo.post.domain.Post;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +16,9 @@ import org.springframework.web.server.ResponseStatusException;
 /**
  * 글(Post) HTTP API 컨트롤러.
  * X-User-Id 헤더로 작성자를 식별한다 (인증은 15장에서 도입).
+ *
+ * <p>post와 moderation 두 모듈을 잇는 조립 지점(composition root)이기도 하다.
+ * 금칙어 검사는 moderation 모듈에 위임하고, 위반 시 400으로 막는다. 두 모듈은 서로 직접 의존하지 않는다.
  */
 @RestController
 @RequestMapping("/posts")
@@ -21,17 +26,26 @@ import org.springframework.web.server.ResponseStatusException;
 public class PostController {
 
     private final PostService postService;
+    private final BannedWordService bannedWordService;
 
-    public PostController(PostService postService) {
+    public PostController(PostService postService, BannedWordService bannedWordService) {
         this.postService = postService;
+        this.bannedWordService = bannedWordService;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "글 작성", description = "새 글을 작성합니다. X-User-Id 헤더로 작성자를 지정합니다.")
+    @Operation(summary = "글 작성", description = "새 글을 작성합니다. 금칙어가 포함되면 400. X-User-Id 헤더로 작성자를 지정합니다.")
     public ApiResponse<PostResponse> createPost(
             @RequestHeader(value = "X-User-Id", defaultValue = "1") Long userId,
             @Valid @RequestBody CreatePostRequest request) {
+
+        // 금칙어 검사(moderation 모듈). 위반 시 도메인 예외 → 400으로 매핑한다.
+        try {
+            bannedWordService.assertClean(request.content());
+        } catch (BannedWordViolationException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
 
         Post post = postService.create(userId, request.content());
         return ApiResponse.ok(PostResponse.from(post), "글이 작성되었습니다.");

@@ -1,0 +1,2 @@
+- [모더레이션 모듈 보안 노트](moderation-module.md) — 금칙어 필터/신고 엔드포인트의 인가·우회 취약점 위치
+- [인증 컨텍스트 현황](auth-context.md) — X-User-Id 헤더 기반 신원, Spring Security 부재 — 인가 검사 누락 판단 기준

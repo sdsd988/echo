@@ -139,7 +139,18 @@
     .time { color: var(--muted); font-size: 12px; }
     .post-content { white-space: pre-wrap; word-break: break-word; }
 
-    .post-actions { margin-top: 8px; }
+    .post-actions { margin-top: 8px; display: flex; gap: 8px; align-items: center; }
+    .report-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .report-btn:hover:not(:disabled) { border-color: var(--danger); color: var(--danger); }
     .like-btn {
       background: transparent;
       border: 1px solid var(--border);
@@ -280,6 +291,7 @@
               <span>♥</span>
               <span class="like-count">…</span>
             </button>
+            <button class="report-btn" data-post-id="${escapeHtml(String(p.postId))}">신고</button>
           </div>
         </article>`;
       }).join("");
@@ -418,10 +430,46 @@
       }
     }
 
+    // ── 신고 ───────────────────────────────────────────────────────
+    // 신고 주체는 위 "내 ID"(meId)를 X-User-Id로 재사용한다.
+    // POST /reports — targetType "POST", targetId = postId, reason은 필수.
+    async function reportPost(postId) {
+      const reason = prompt("신고 사유를 입력하세요.", "부적절한 게시물");
+      if (reason === null) return;            // 취소
+      if (!reason.trim()) {
+        alert("신고 사유를 입력해야 합니다.");
+        return;
+      }
+      const $btn = $feed.querySelector(`.report-btn[data-post-id="${postId}"]`);
+      if ($btn) $btn.disabled = true;
+      try {
+        const res = await fetch("/reports", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-User-Id": currentMe()
+          },
+          body: JSON.stringify({
+            targetType: "POST",
+            targetId: Number(postId),
+            reason: reason.trim()
+          })
+        });
+        await unwrap(res);
+        alert("신고가 접수되었습니다.");
+      } catch (e) {
+        alert("신고 실패: " + e.message);
+      } finally {
+        if ($btn) $btn.disabled = false;
+      }
+    }
+
     // 피드는 매번 새로 그려지므로 이벤트 위임으로 처리
     $feed.addEventListener("click", (e) => {
-      const $btn = e.target.closest(".like-btn");
-      if ($btn) toggleLike($btn.dataset.postId);
+      const $like = e.target.closest(".like-btn");
+      if ($like) { toggleLike($like.dataset.postId); return; }
+      const $report = e.target.closest(".report-btn");
+      if ($report) reportPost($report.dataset.postId);
     });
 
     $content.addEventListener("input", updateCounter);
